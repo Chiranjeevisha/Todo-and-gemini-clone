@@ -1,0 +1,240 @@
+import { useContext, useState } from "react";
+import SyntaxHighlighter from "react-syntax-highlighter";
+import "./App.css";
+import { Context } from "./context/Context";
+import he from "he";
+import EditModal from "./EditModal";
+import { atomOneDark } from "react-syntax-highlighter/dist/esm/styles/hljs";
+
+function App() {
+  const [newItem, setNewItem] = useState("");
+  const [todos, setTodos] = useState([]);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editing, setEditing] = useState({ id: null, text: "" });
+  const {
+    onSent,
+    input,
+    setInput,
+    setResultData,
+    resultData,
+    lastPrompt,
+    setLastPrompt,
+    isLoading,
+  } = useContext(Context);
+
+  const handleToggle = (id, completed) => {
+    setTodos((currentTodos) => {
+      return currentTodos.map((todo) => {
+        if (todo.id === id) {
+          return { ...todo, completed };
+        }
+        return todo;
+      });
+    });
+  };
+
+  const handleAdd = (e) => {
+    e.preventDefault();
+    if (newItem.trim() == 0) {
+      alert("please enter something");
+    } else {
+      setTodos((currentTodos) => {
+        return [
+          ...currentTodos,
+          { id: crypto.randomUUID(), title: newItem, completed: false },
+        ];
+      });
+    }
+    setNewItem("");
+  };
+
+  const deleteList = (id) => {
+    setTodos((currentTodos) => {
+      return currentTodos.filter((todo) => todo.id !== id);
+    });
+  };
+
+  const isHtml = (str) => {
+    const doc = new DOMParser().parseFromString(str, "text/html");
+    return Array.from(doc.body.childNodes).some((node) => node.nodeType === 1);
+  };
+
+  const decodeHtml = (html) => {
+    return he.decode(html).replace(/[*`#]/g, "");
+  };
+
+  const startEditing = (id, title) => {
+    setShowEditModal((p) => !p);
+    setEditing({ id, text: title });
+  };
+
+  const saveEditing = () => {
+    setTodos((currentTodos) =>
+      currentTodos.map((todo) =>
+        todo.id === editing.id ? { ...todo, title: editing.text } : todo
+      )
+    );
+  };
+  //practice
+  // const savediting = (id, title) => {
+  //   setShowEditModal((p) => !p);
+  //   setEditing({id, })
+  // }
+  //practice
+
+  // gemini
+
+  const handleGeminiPrompt = (e) => {
+    if (input.trim().length == 0) {
+      return alert("please enter a prompt");
+    } else {
+      setLastPrompt(input);
+      e.preventDefault();
+      setResultData("");
+      onSent();
+    }
+  };
+
+  const formatResultData = (content) => {
+    return content.replace(/[*#]/g, "");
+  };
+  // gemini
+  return (
+    <>
+      <div className="d-flex flex-column justify-content-center text-center">
+        <form onSubmit={handleAdd} className="new-item-form">
+          <div className="form-row">
+            <label
+              style={{
+                marginBottom: "20px",
+                fontSize: "40px",
+                fontWeight: "bold",
+              }}
+              htmlFor="item"
+            >
+              New Item
+            </label>
+            <input
+              value={newItem}
+              onChange={(e) => setNewItem(e.target.value)}
+              type="text"
+              id="item"
+            />
+          </div>
+          <button className="btn btn-primary"> Add</button>
+        </form>
+        <h1 className="header">List Items</h1>
+        {todos.length == 0 && <h1>please enter a task</h1>}
+        {todos.map((item) => {
+          return (
+            <ul key={item.id} className="list width-form my-1">
+              <li>
+                <label>
+                  <input
+                    onChange={(e) => handleToggle(item.id, e.target.checked)}
+                    type="checkbox"
+                  />
+                  {item.title}
+                </label>
+                <button
+                  onClick={() => deleteList(item.id)}
+                  className="btn btn-danger"
+                >
+                  Delete
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  onClick={() => startEditing(item.id, item.title)}
+                  // onClick={""}
+                >
+                  Edit
+                </button>
+              </li>
+            </ul>
+          );
+        })}
+        <hr />
+        {/* Gemini */}
+        <form onSubmit={handleGeminiPrompt} className="new-item-form">
+          <label
+            style={{
+              marginBottom: "20px",
+              fontSize: "40px",
+              fontWeight: "bold",
+            }}
+            htmlFor="item"
+          >
+            Gemini Clone
+          </label>
+          <div className="form-row d-flex flex-row justify-content-center">
+            <input
+              className="w-100"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              type="text"
+              id="item"
+            />
+            <div>
+              <button
+                type="submit"
+                className="btn btn-danger"
+                onClick={handleGeminiPrompt}
+              >
+                &#9889;
+              </button>
+            </div>
+          </div>
+        </form>
+        <div style={{ marginTop: "100px" }}>
+          {
+            <div className="my-4">
+              {!isLoading && (
+                <h4>
+                  Your Prompt :
+                  {resultData.length == 0 ? "No Prompts" : lastPrompt}
+                </h4>
+              )}
+            </div>
+          }
+          {isLoading && <h2>...Loading</h2>}
+          <div>
+            {isHtml(resultData) ? (
+              <pre
+                className="rounded w-100"
+                style={{
+                  border: "1px solid #ddd",
+                  textAlign: "start",
+                  fontSize: "17px",
+                }}
+              >
+                <SyntaxHighlighter
+                  language="javascript"
+                  style={atomOneDark}
+                  customStyle={{ padding: "25px" }}
+                >
+                  {decodeHtml(resultData)}
+                </SyntaxHighlighter>
+              </pre>
+            ) : (
+              <b
+                dangerouslySetInnerHTML={{
+                  __html: formatResultData(resultData),
+                }}
+              ></b>
+            )}
+          </div>
+        </div>
+        <EditModal
+          showEditModal={showEditModal}
+          editing={editing}
+          setEditing={setEditing}
+          startEditing={startEditing}
+          saveEditing={saveEditing}
+        />
+      </div>
+    </>
+  );
+}
+
+export default App;
