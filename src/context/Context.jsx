@@ -5,20 +5,20 @@ export const Context = createContext();
 
 const ContextProvider = (props) => {
   const [input, setInput] = useState("");
-  const [recentPrompt, setRecentPrompt] = useState("");
-  const [previousPrompt, setPreviousPrompt] = useState([]);
   const [showResult, setShowResult] = useState("");
   const [resultData, setResultData] = useState("");
   const [lastPrompt, setLastPrompt] = useState("");
   const [editPrompt, setEditPrompt] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
+  const [disableAi, setDisableAi] = useState(false);
   const onSent = async () => {
+    setDisableAi(true);
     setIsLoading(true);
     const response = await runChat(input);
     setResultData(response);
     setInput("");
     setIsLoading(false);
+    setDisableAi(false);
   };
 
   const contextValue = {
@@ -35,6 +35,8 @@ const ContextProvider = (props) => {
     setIsLoading,
     editPrompt,
     setEditPrompt,
+    disableAi,
+    setDisableAi,
   };
 
   return (
