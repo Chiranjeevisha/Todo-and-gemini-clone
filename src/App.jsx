@@ -20,6 +20,7 @@ function App() {
     lastPrompt,
     setLastPrompt,
     isLoading,
+    disableAi,
   } = useContext(Context);
 
   const handleToggle = (id, completed) => {
@@ -63,9 +64,9 @@ function App() {
     return he.decode(html).replace(/[*`#]/g, "");
   };
 
-  const startEditing = (id, title) => {
+  const startEditing = (id, text) => {
     setShowEditModal((p) => !p);
-    setEditing({ id, text: title });
+    setEditing({ id, text });
   };
 
   const saveEditing = () => {
@@ -75,21 +76,16 @@ function App() {
       )
     );
   };
-  //practice
-  // const savediting = (id, title) => {
-  //   setShowEditModal((p) => !p);
-  //   setEditing({id, })
-  // }
-  //practice
 
   // gemini
 
   const handleGeminiPrompt = (e) => {
-    if (input.trim().length == 0) {
-      return alert("please enter a prompt");
+    e.preventDefault();
+    if (input.trim() == 0) {
+      alert("please enter a prompt");
     } else {
+      setInput("");
       setLastPrompt(input);
-      e.preventDefault();
       setResultData("");
       onSent();
     }
@@ -174,6 +170,7 @@ function App() {
               onChange={(e) => setInput(e.target.value)}
               type="text"
               id="item"
+              disabled={disableAi}
             />
             <div>
               <button
