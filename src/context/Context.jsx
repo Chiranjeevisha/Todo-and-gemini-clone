@@ -11,14 +11,21 @@ const ContextProvider = (props) => {
   const [editPrompt, setEditPrompt] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [disableAi, setDisableAi] = useState(false);
+  const [showErrorToast, setShowErrorToast] = useState(false);
   const onSent = async () => {
-    setDisableAi(true);
-    setIsLoading(true);
-    const response = await runChat(input);
-    setResultData(response);
-    setInput("");
-    setIsLoading(false);
-    setDisableAi(false);
+    try {
+      setDisableAi(true);
+      setIsLoading(true);
+      const response = await runChat(input);
+      setResultData(response);
+      setInput("");
+      setIsLoading(false);
+      setDisableAi(false);
+      setShowErrorToast(false);
+    } catch (error) {
+      setShowErrorToast(true);
+      setDisableAi(false);
+    }
   };
 
   const contextValue = {
@@ -37,6 +44,8 @@ const ContextProvider = (props) => {
     setEditPrompt,
     disableAi,
     setDisableAi,
+    showErrorToast,
+    setShowErrorToast,
   };
 
   return (

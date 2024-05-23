@@ -5,6 +5,7 @@ import { Context } from "./context/Context";
 import he from "he";
 import EditModal from "./EditModal";
 import { atomOneDark } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import ErrorToast from "./ErrorToast";
 
 function App() {
   const [newItem, setNewItem] = useState("");
@@ -21,6 +22,8 @@ function App() {
     setLastPrompt,
     isLoading,
     disableAi,
+    showErrorToast,
+    setShowErrorToast,
   } = useContext(Context);
 
   const handleToggle = (id, completed) => {
@@ -97,7 +100,7 @@ function App() {
   // gemini
   return (
     <>
-      <div className="d-flex flex-column justify-content-center text-center">
+      <div className="d-flex flex-column justify-content-center text-center position-relative">
         <form onSubmit={handleAdd} className="new-item-form">
           <div className="form-row">
             <label
@@ -229,6 +232,12 @@ function App() {
           startEditing={startEditing}
           saveEditing={saveEditing}
         />
+        <div className="toastinger">
+          <ErrorToast
+            showErrorToast={showErrorToast}
+            setShowErrorToast={setShowErrorToast}
+          />
+        </div>
       </div>
     </>
   );
