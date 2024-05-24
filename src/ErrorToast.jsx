@@ -6,7 +6,6 @@ import Toast from "react-bootstrap/Toast";
 import "./App.css";
 
 function ErrorToast({ showErrorToast, setShowErrorToast }) {
-  console.log("🚀 ~ ErrorToast ~ showErrorToast:", showErrorToast);
   return (
     <Row className="">
       <Col xs={6} className="p-100">
