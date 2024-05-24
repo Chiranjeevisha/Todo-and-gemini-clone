@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import "./App.css";
 import { Context } from "./context/Context";
@@ -9,7 +9,11 @@ import ErrorToast from "./ErrorToast";
 
 function App() {
   const [newItem, setNewItem] = useState("");
-  const [todos, setTodos] = useState([]);
+  const [todos, setTodos] = useState(() => {
+    const localValue = localStorage.getItem("ITEMS");
+    if (localValue == null) return [];
+    return JSON.parse(localValue);
+  });
   const [showEditModal, setShowEditModal] = useState(false);
   const [editing, setEditing] = useState({ id: null, text: "" });
   const {
@@ -25,6 +29,13 @@ function App() {
     showErrorToast,
     setShowErrorToast,
   } = useContext(Context);
+
+  // storing data in local storage
+  useEffect(() => {
+    localStorage.setItem("ITEMS", JSON.stringify(todos));
+  }, [todos]);
+
+  // storing data in local storage
 
   const handleToggle = (id, completed) => {
     setTodos((currentTodos) => {
@@ -130,6 +141,7 @@ function App() {
               <li>
                 <label>
                   <input
+                    checked={item.completed}
                     onChange={(e) => handleToggle(item.id, e.target.checked)}
                     type="checkbox"
                   />
@@ -143,7 +155,7 @@ function App() {
                 </button>
                 <button
                   type="button"
-                  class="btn btn-primary"
+                  className="btn btn-primary"
                   onClick={() => startEditing(item.id, item.title)}
                   // onClick={""}
                 >
