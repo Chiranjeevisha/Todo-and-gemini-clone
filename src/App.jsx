@@ -209,7 +209,17 @@ function App() {
               )}
             </div>
           }
-          {isLoading && <h2>...Loading</h2>}
+          {/* {isLoading && <h2>...Loading</h2>} */}
+          {isLoading && (
+            <div>
+              <div class="lds-ellipsis">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+              </div>
+            </div>
+          )}
           <div>
             {isHtml(resultData) ? (
               <pre
