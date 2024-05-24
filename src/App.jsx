@@ -137,7 +137,7 @@ function App() {
         {todos.length == 0 && <h1>please enter a task</h1>}
         {todos.map((item) => {
           return (
-            <ul key={item.id} className="list width-form my-1">
+            <ul key={item.id} className="list my-1">
               <li>
                 <label>
                   <input
