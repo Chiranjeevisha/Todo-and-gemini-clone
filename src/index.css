@@ -10,9 +10,6 @@ body {
   margin: 0 auto !important;
 }
 
-.width-form {
-  width: 20%;
-}
 .new-item-form {
   display: flex;
   flex-direction: column;
